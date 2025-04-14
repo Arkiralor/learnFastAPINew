@@ -1,0 +1,10 @@
+dnspython
+fastapi[standard]
+motor
+pydantic
+pydantic-settings
+pymongo
+python-dotenv
+pytz
+uvicorn
+websockets
