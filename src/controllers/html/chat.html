@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Modern Material Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Material Design Components Web CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/@material/web@latest/all.min.css">
+    <script type="module" src="https://unpkg.com/@material/web@latest/all.min.js"></script>
+
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+
+<body>
+    <div class="chat-wrapper">
+        <div class="chat-header">
+            <span>💬</span> Modern Material Chat
+        </div>
+        <div class="chat-messages">
+            <ul id="messages"></ul>
+        </div>
+        <form class="chat-input" onsubmit="sendMessage(event)">
+            <md-outlined-text-field id="messageText" label="Message" type="text"></md-outlined-text-field>
+            <md-filled-button type="submit">Send</md-filled-button>
+        </form>
+    </div>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8000/chat/chat/001/");
+        ws.onmessage = function (event) {
+            const messages = document.getElementById('messages');
+            const message = document.createElement('li');
+            message.textContent = event.data;
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        };
+
+        function sendMessage(event) {
+            const input = document.getElementById("messageText");
+            const field = input.shadowRoot.querySelector('input');
+            if (field.value.trim()) {
+                ws.send(field.value);
+                field.value = '';
+            }
+            event.preventDefault();
+        }
+    </script>
+</body>
+
+</html>

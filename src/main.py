@@ -9,8 +9,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from config.globals import settings
+from config.logging_config import logging_config
 from controllers.auth import auth_router
-from logging.config import dictConfig
+from controllers.chat import chat_router
+from logging import config as logConfig
 
 
 
@@ -20,51 +22,9 @@ app = FastAPI(
 )
 
 app.include_router(router=auth_router, prefix="/api/v1", tags=["auth"])
+app.include_router(router=chat_router, prefix="/api/v1", tags=["chat"])
 
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '[%(levelname)s|%(asctime)s.%(msecs)d|%(name)s|%(module)s|%(funcName)s:%(lineno)s]    %(message)s',
-            'datefmt': '%d/%b/%Y %H:%M:%S',
-        },
-        'local': {
-            'format': '[%(asctime)s|%(name)s|%(module)s|%(funcName)s:%(lineno)s]    %(message)s',
-            'datefmt': '%d/%b/%Y %H:%M:%S',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'local',
-        },
-        'root_file': {
-            'class': 'logging.FileHandler',
-            'filename': settings.ENV_LOG_FILE,
-            'formatter': 'verbose',
-            'encoding': 'utf-8',
-        }
-    },
-    'loggers': {
-        'root': {
-            'handlers': [
-                'console', 
-                'root_file'
-            ],
-            "level": 'INFO'
-        },
-        'watchfiles': {
-            'handlers': [
-                'console'
-            ],
-            'level': 'WARNING',  # hide INFO
-            'propagate': False,
-        },
-    },
-}
-
-dictConfig(LOGGING_CONFIG)
+logConfig.dictConfig(logging_config.CONFIG)
 
 
 class RootResponseSchema(BaseModel):
@@ -97,22 +57,6 @@ class PostMetadataSchema(BaseModel):
 
         return v
 
-    # @field_validator('updated_at', mode='before')
-    # @classmethod
-    # def validate_updated_date(cls, v, values):
-    #     if (not v) or v == "" or v == "string":
-    #         v = datetime.now(tz=pytz.UTC)
-    #     elif v and isinstance(v, str):
-    #         try:
-    #             v = datetime.strptime(v, "%Y-%m-%dT%H:%M:%S.%fZ")
-    #         except ValueError:
-    #             raise ValueError("Invalid date format")
-
-    #     if 'created_at' in values and v < values['created_at']:
-    #         raise ValueError("Updated date cannot be before created date")
-
-    #     return v
-
 
 class PostInputScema(BaseModel):
     title: str
@@ -142,46 +86,7 @@ class PostResponseSchema(BaseModel):
 
 posts: List[PostResponseSchema] = []
 
-
-@app.get("/")
-async def read_root():
-    html = """
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <title>Chat</title>
-            </head>
-            <body>
-                <h1>WebSocket Chat</h1>
-                <form action="" onsubmit="sendMessage(event)">
-                    <input type="text" id="messageText" autocomplete="off"/>
-                    <button>Send</button>
-                </form>
-                <ul id='messages'>
-                </ul>
-                <script>
-                    var ws = new WebSocket("ws://localhost:8000/chat");
-                    ws.onmessage = function(event) {
-                        var messages = document.getElementById('messages')
-                        var message = document.createElement('li')
-                        var content = document.createTextNode(event.data)
-                        message.appendChild(content)
-                        messages.appendChild(message)
-                    };
-                    function sendMessage(event) {
-                        var input = document.getElementById("messageText")
-                        ws.send(input.value)
-                        input.value = ''
-                        event.preventDefault()
-                    }
-                </script>
-            </body>
-        </html>
-        """
-    return HTMLResponse(html)
-
-
-@app.get("/index", response_model=RootResponseSchema, response_model_exclude_unset=True)
+@app.get("/", response_model=RootResponseSchema, response_model_exclude_unset=True)
 async def root() -> RootResponseSchema:
     obj = RootResponseSchema(message="Hello World!", status=200)
     return obj
@@ -199,12 +104,5 @@ async def create_post(post: PostInputScema) -> PostResponseSchema:
 async def get_posts() -> List[PostResponseSchema]:
     return posts
 
-
-@app.websocket("/chat")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
 
 

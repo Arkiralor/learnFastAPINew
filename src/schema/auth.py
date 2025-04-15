@@ -4,7 +4,7 @@ from bson import ObjectId
 from typing import Optional, List
 from datetime import datetime
 import pytz
-from schema import PydanticObjectId
+from config.boilerplate import PydanticObjectId
 
 
 class UserRegisterSchema(BaseModel):
