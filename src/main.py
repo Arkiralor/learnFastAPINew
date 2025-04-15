@@ -1,4 +1,5 @@
 from fastapi import FastAPI, WebSocket
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, field_validator
 from typing import Optional, List, Sequence, Dict, Any
@@ -19,6 +20,14 @@ from logging import config as logConfig
 app = FastAPI(
     debug=settings.DEBUG,
     title=settings.PROJECT_NAME,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or a specific origin like ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(router=auth_router, prefix="/api/v1", tags=["auth"])
