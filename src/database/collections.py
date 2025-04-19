@@ -8,6 +8,7 @@ class DatabaseCollections:
     POSTS: str = "posts"
     TAGS: str = "tags"
     COMMENTS: str = "comments"
+    TOKEN_BLACKLIST: str = "blacklistedTokens"
 
     # request_logs = "requestLogs"
     # raw_request_logs = "rawRequestLogs"

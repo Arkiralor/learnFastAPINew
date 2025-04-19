@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     MONGO_DB: str = getenv("MONGO_DB", "fastapi")
     MAX_ITEMS_PER_PAGE: int = 10
     JWT_ALGORITHM: str = getenv("JWT_ALGORITHM", "HS256")
-    JWT_EXPIRATION_TIME: int = 3600  # in seconds
+    JWT_EXPIRATION_TIME: int = 28_800 if DEBUG else 300  # in seconds
+    JWT_REFRESH_EXPIRATION_TIME: int = 604_800 # in seconds
 
     BASE_DIR: Path = Path(__file__).resolve().parent.parent
     LOG_DIR: Optional[str] = None

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from helpers.auth import UserModelHelpers
-from schema.auth import UserRegisterSchema, UserRegisterOutputSchema
+from schema.auth import UserRegisterSchema, UserRegisterOutputSchema, AuthTokenSchema, UserPasswordLoginSchema, TokenBlacklistSchema
 
 from controllers import logger
 
@@ -27,3 +27,19 @@ async def register_user(user: UserRegisterSchema) -> UserRegisterOutputSchema:
     """
     user = await UserModelHelpers.create_user(user)
     return user
+
+@auth_router.post("/login/password", response_model=AuthTokenSchema)
+async def login_via_password(data: UserPasswordLoginSchema) -> AuthTokenSchema:
+    """
+    Login using password.
+    """
+    resp = UserModelHelpers.login_user_password(data)
+    return resp
+
+@auth_router.post("/logout/", response_model=TokenBlacklistSchema)
+async def logout_user(data: AuthTokenSchema) -> TokenBlacklistSchema:
+    """
+    Logout user.
+    """
+    resp = UserModelHelpers.logout_user(data)
+    return resp

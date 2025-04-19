@@ -70,7 +70,8 @@ class TemplateSchema(BaseModel):
 
     class Config:
         json_encoders = {
-            ObjectId: str
+            ObjectId: str,
+            PydanticObjectId: str
         }
         arbitrary_types_allowed = True
         json_schema_extra = {

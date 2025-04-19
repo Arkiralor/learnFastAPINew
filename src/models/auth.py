@@ -31,3 +31,23 @@ class User(BaseModel):
                 "updated_at": datetime.now(tz=pytz.UTC)
             }
         }
+
+class TokenBlacklist(BaseModel):
+    id: Optional[ObjectId] = Field(default_factory=ObjectId, alias="_id")
+    token: str = Field(...)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(tz=pytz.UTC))
+    expires_at: datetime = Field(default_factory=lambda: datetime.now(tz=pytz.UTC))
+
+    class Config:
+        json_encoders = {
+            ObjectId: str
+        }
+        arbitrary_types_allowed=True
+        json_schema_extra = {
+            "example": {
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "user_id": ObjectId("605c72f8e3b0d4f7f8f8d4e2"),
+                "created_at": datetime.now(tz=pytz.UTC),
+                "expires_at": datetime.now(tz=pytz.UTC)
+            }
+        }

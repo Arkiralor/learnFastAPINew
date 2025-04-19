@@ -3,6 +3,7 @@ fastapi[standard]
 motor
 pydantic
 pydantic-settings
+PyJWT
 pymongo
 python-dotenv
 pytz
